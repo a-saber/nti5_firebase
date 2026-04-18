@@ -25,7 +25,7 @@ class AuthRepo{
       );
 
       await FirebaseFirestore.instance.collection('users')
-      .add(userModel.toJson());
+      .doc(userModel.id).set(userModel.toJson());
       return right(unit);
 
     } catch (e) {
@@ -51,10 +51,13 @@ class AuthRepo{
         password: password,
       );
       if(credential.user!.emailVerified){
-        var user = UserModel(
-            email: emailAddress,
-            id: credential.user!.uid
-        );
+
+
+        var response = await FirebaseFirestore.instance.collection('users')
+        .doc(credential.user?.uid).get();
+        var user = UserModel.fromJson(response.data()!)
+        ..id = credential.user?.uid;
+
         return right(user);
       }
       else {
