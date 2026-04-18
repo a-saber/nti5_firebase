@@ -6,11 +6,7 @@ class RegisterInitial extends RegisterState{}
 
 class RegisterLoading extends RegisterState{}
 
-class RegisterSuccess extends RegisterState{
-  UserModel userModel;
-  RegisterSuccess(this.userModel);
-}
-
+class RegisterSuccess extends RegisterState{}
 class RegisterError extends RegisterState{
   String error;
   RegisterError(this.error);

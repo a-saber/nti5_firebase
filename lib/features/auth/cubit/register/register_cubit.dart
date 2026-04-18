@@ -20,6 +20,7 @@ class RegisterCubit extends Cubit<RegisterState>{
     if(formKey.currentState?.validate() == false) return;
     if(password.text != confirmPassword.text){
       emit(RegisterError('Passwords don\'t match'));
+      return;
     }
 
     emit(RegisterLoading());
@@ -31,7 +32,7 @@ class RegisterCubit extends Cubit<RegisterState>{
     );
     result.fold(
         (error)=> emit(RegisterError(error)),
-        (model)=> emit(RegisterSuccess(model))
+        (u)=> emit(RegisterSuccess())
     );
   }
 
