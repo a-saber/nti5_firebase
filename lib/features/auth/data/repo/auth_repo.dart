@@ -41,7 +41,7 @@ class AuthRepo{
       return left('error has happened');
     }
   }
-  Future<Either<String, UserModel>> login({
+  Future<Either<String, Unit>> login({
     required String emailAddress,
     required String password
 })async{
@@ -51,14 +51,7 @@ class AuthRepo{
         password: password,
       );
       if(credential.user!.emailVerified){
-
-
-        var response = await FirebaseFirestore.instance.collection('users')
-        .doc(credential.user?.uid).get();
-        var user = UserModel.fromJson(response.data()!)
-        ..id = credential.user?.uid;
-
-        return right(user);
+        return right(unit);
       }
       else {
         return left('Please verify your email first');
@@ -66,7 +59,32 @@ class AuthRepo{
 
 
 
+    } catch (e) {
+      if(e is FirebaseAuthException){
+        if (e.code == 'user-not-found') {
+          return left('No user found for that email.');
+        } else if (e.code == 'wrong-password') {
+          return left('Wrong password provided for that user.');
+        }
+        return left('${e.code} ${e.message}');
+    }
+      print(e.toString());
+      return left('error has happened');
+    }
+  }
+  Future<Either<String, UserModel>> getUserData()async{
+    try {
+        if(FirebaseAuth.instance.currentUser != null) {
+          var response = await FirebaseFirestore.instance.collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid).get();
+          var user = UserModel.fromJson(response.data()!)
+            ..id = FirebaseAuth.instance.currentUser!.uid;
 
+          return right(user);
+        }
+        else{
+          return left('User is Signed out');
+        }
 
     } catch (e) {
       if(e is FirebaseAuthException){

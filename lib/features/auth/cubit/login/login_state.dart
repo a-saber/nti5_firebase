@@ -6,11 +6,7 @@ class LoginInitial extends LoginState{}
 
 class LoginLoading extends LoginState{}
 
-class LoginSuccess extends LoginState{
-  UserModel userModel ;
-  LoginSuccess(this.userModel);
-}
-
+class LoginSuccess extends LoginState{}
 class LoginError extends LoginState{
   String error;
   LoginError(this.error);

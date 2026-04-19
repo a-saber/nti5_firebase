@@ -25,7 +25,7 @@ class LoginCubit extends Cubit<LoginState>{
     );
     result.fold(
         (error)=> emit(LoginError(error)),
-        (model)=> emit(LoginSuccess(model))
+        (u)=> emit(LoginSuccess())
     );
   }
 

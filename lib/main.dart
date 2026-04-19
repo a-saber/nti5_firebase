@@ -30,9 +30,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: FirebaseAuth.instance.currentUser == null ?
-      LoginView() :
-      HomeView(),
+      home: (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser?.emailVerified == true)?
+      HomeView():
+      LoginView(),
     );
   }
 }
