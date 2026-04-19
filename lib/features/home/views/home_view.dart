@@ -44,6 +44,13 @@ class HomeView extends StatelessWidget {
       //   ],
       // ),
       appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: ()async{
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> LoginView()), (r)=>false);
+              }, icon: Icon(Icons.logout))
+          ],
         title: FutureBuilder(
           future: FirebaseFirestore.instance.collection('users')
               .doc(FirebaseAuth.instance.currentUser!.uid).get(),
@@ -66,35 +73,84 @@ class HomeView extends StatelessWidget {
           }
         ),
       ),
-      body: FutureBuilder(
-        future: FirebaseFirestore.instance.collection('users')
-            .doc(FirebaseAuth.instance.currentUser?.uid).collection('tasks').get(),
-          builder: (context, snapshot){
-          if(snapshot.hasError){
-            return Text("Something went wrong");
+      body: TasksStreamBuilder(),
+    );
+  }
+}
+class TasksStreamBuilder extends StatelessWidget {
+  const TasksStreamBuilder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users')
+            .doc(FirebaseAuth.instance.currentUser?.uid).collection('tasks').snapshots(),
+        builder: (context, snapshot){
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
           }
-          else if (snapshot.connectionState == ConnectionState.done) {
-            List<TaskModel> tasks = 
-            snapshot.data!.docs.map((doc)=> TaskModel.fromJson(doc.data())..id = doc.id).toList();
-            return ListView.separated(
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          List<TaskModel> tasks =
+          snapshot.data!.docs.map((doc)=> TaskModel.fromJson(doc.data() as Map<String, dynamic>)..id = doc.id).toList();
+          return ListView.separated(
               itemBuilder: (context, index){
                 return Container(
                   padding: EdgeInsets.all(15),
                   child: Column(children: [
-                   Text(tasks[index].title??''),
-                   Text(tasks[index].description??''),
-                   Text(tasks[index].dateTime.toString()),
+                    Text(tasks[index].title??''),
+                    Text(tasks[index].description??''),
+                    Text(tasks[index].dateTime.toString()),
                   ],),
                 );
-              }, 
-              separatorBuilder: (context, index) => Divider(), 
+              },
+              separatorBuilder: (context, index) => Divider(),
               itemCount: tasks.length
+          );
+
+
+
+        });
+  }
+}
+
+
+
+class TasksFutureBuilder extends StatelessWidget {
+  const TasksFutureBuilder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: FirebaseFirestore.instance.collection('users')
+            .doc(FirebaseAuth.instance.currentUser?.uid).collection('tasks').get(),
+        builder: (context, snapshot){
+          if(snapshot.hasError){
+            return Text("Something went wrong");
+          }
+          else if (snapshot.connectionState == ConnectionState.done) {
+            List<TaskModel> tasks =
+            snapshot.data!.docs.map((doc)=> TaskModel.fromJson(doc.data())..id = doc.id).toList();
+            return ListView.separated(
+                itemBuilder: (context, index){
+                  return Container(
+                    padding: EdgeInsets.all(15),
+                    child: Column(children: [
+                      Text(tasks[index].title??''),
+                      Text(tasks[index].description??''),
+                      Text(tasks[index].dateTime.toString()),
+                    ],),
+                  );
+                },
+                separatorBuilder: (context, index) => Divider(),
+                itemCount: tasks.length
             );
           }
           return Text("loading");
-          
-            
-          }),
-    );
+
+
+        });
   }
 }

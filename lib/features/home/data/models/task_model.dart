@@ -11,7 +11,7 @@ class TaskModel{
   TaskModel.fromJson(Map<String, dynamic> json){
     title = json['title'];
     description = json['description'];
-    dateTime = (json['dateTime'] as Timestamp).toDate();
+    dateTime = (json['dateTime'] as Timestamp?)?.toDate();
   }
 
   Map<String, dynamic> toJson(){
