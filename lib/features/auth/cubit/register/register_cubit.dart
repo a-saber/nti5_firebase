@@ -30,7 +30,7 @@ class RegisterCubit extends Cubit<RegisterState> {
 
     result.fold(
         (e)=> emit(RegisterErrorState(e)),
-        (userModel)=> emit(RegisterSuccessState(userModel))
+        (u)=> emit(RegisterSuccessState())
     );
   }
 }

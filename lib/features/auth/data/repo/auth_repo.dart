@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nti5_firebase/features/auth/data/models/user_model.dart';
 
 class AuthRepo {
-  Future<Either<String, UserModel>> register({
+  Future<Either<String, Unit>> register({
     required String email,
     required String password,
     required String name,
@@ -28,7 +28,7 @@ class AuthRepo {
           .doc(userModel.id)
           .set(userModel.toJson());
 
-      return right(userModel);
+      return right(unit);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         return left('The password provided is too weak.');
@@ -42,7 +42,7 @@ class AuthRepo {
     }
   }
 
-  Future<Either<String, UserModel>> login({
+  Future<Either<String, Unit>> login({
     required String email,
     required String password,
   }) async {
@@ -54,13 +54,7 @@ class AuthRepo {
       if(credential.user?.emailVerified == false){
         return left('Please verify your email address first');
       }
-      // Save user to database (fireStore)
-      var userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(credential.user?.uid)
-          .get();
-      var userModel = UserModel.fromJson(userDoc.data()!)..id = credential.user?.uid;
-      return right(userModel);
+      return right(unit);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         return left('No user found for that email.');
@@ -73,4 +67,9 @@ class AuthRepo {
       return left('Something went wrong');
     }
   }
+
+
+
+
+
 }
