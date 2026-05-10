@@ -22,7 +22,7 @@ class LoginView extends StatelessWidget {
           listener: (context, state) {
             if(state is LoginSuccessState){
               Fluttertoast.showToast(
-                  msg: "Registered Successfully",
+                  msg: "Welcome Back",
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   backgroundColor: Colors.green,

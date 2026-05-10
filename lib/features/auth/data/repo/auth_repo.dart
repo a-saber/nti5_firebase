@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:nti5_firebase/features/auth/data/models/user_model.dart';
 
 class AuthRepo {
@@ -8,13 +10,24 @@ class AuthRepo {
     required String password,
     required String name,
     required String phone,
-})async{
+  }) async {
     try {
-      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      var userModel = UserModel(id: credential.user?.uid, name: name, email: email, phone: phone);
+      // Send Email verification
+      await credential.user?.sendEmailVerification();
+      var userModel = UserModel(
+          id: credential.user?.uid, name: name, email: email, phone: phone);
+
+      // Save user to database (fireStore)
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userModel.id)
+          .set(userModel.toJson());
+
       return right(userModel);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -32,17 +45,21 @@ class AuthRepo {
   Future<Either<String, UserModel>> login({
     required String email,
     required String password,
-})async{
+  }) async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      var userModel = UserModel(id: credential.user?.uid, email: email);
-
-      // TODO: Email verification
-      // credential.user?.emailVerified;
-      // credential.user?.sendEmailVerification();
+      if(credential.user?.emailVerified == false){
+        return left('Please verify your email address first');
+      }
+      // Save user to database (fireStore)
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(credential.user?.uid)
+          .get();
+      var userModel = UserModel.fromJson(userDoc.data()!)..id = credential.user?.uid;
       return right(userModel);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

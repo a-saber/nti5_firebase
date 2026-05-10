@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nti5_firebase/features/auth/cubit/register/register_cubit.dart';
 import 'package:nti5_firebase/features/auth/cubit/register/register_state.dart';
+import 'package:nti5_firebase/features/auth/views/login_view.dart';
 import 'package:nti5_firebase/features/home/views/home_view.dart';
 
 class RegisterView extends StatelessWidget {
@@ -20,16 +21,14 @@ class RegisterView extends StatelessWidget {
             listener: (context, state) {
               if(state is RegisterSuccessState){
                 Fluttertoast.showToast(
-                    msg: "Registered Successfully",
+                    msg: "Registered Successfully\nPlease Verify Your Email then Login",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
                     backgroundColor: Colors.green,
                     textColor: Colors.white,
                     fontSize: 16.0
                 );
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeView(
-                  userModel: state.userModel,
-                )));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginView()));
               }
               else if(state is RegisterErrorState){
                 Fluttertoast.showToast(
