@@ -1,39 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nti5_firebase/features/auth/cubit/register/register_state.dart';
 import 'package:nti5_firebase/features/auth/data/repo/auth_repo.dart';
+import 'register_state.dart';
 
-class RegisterCubit extends Cubit<RegisterState>{
-  RegisterCubit(this.repo) : super(RegisterInitial());
+class RegisterCubit extends Cubit<RegisterState> {
+  RegisterCubit() : super(RegisterInitialState());
+
   static RegisterCubit get(context) => BlocProvider.of(context);
-  final AuthRepo repo;
 
   var name = TextEditingController();
-  var phone = TextEditingController();
   var email = TextEditingController();
+  var phone = TextEditingController();
   var password = TextEditingController();
-  var confirmPassword = TextEditingController();
+
   var formKey = GlobalKey<FormState>();
 
+  AuthRepo repo = AuthRepo();
 
-  void register() async{
-    if(formKey.currentState?.validate() == false) return;
-    if(password.text != confirmPassword.text){
-      emit(RegisterError('Passwords don\'t match'));
-      return;
-    }
+  void onRegisterPressed() async {
+    if (formKey.currentState?.validate() == false) return;
 
-    emit(RegisterLoading());
+    emit(RegisterLoadingState());
     var result = await repo.register(
-      emailAddress: email.text,
-      name: name.text,
-      phone: phone.text,
-      password: password.text
+        email: email.text,
+        password: password.text,
+        name: name.text,
+        phone: phone.text
     );
+
     result.fold(
-        (error)=> emit(RegisterError(error)),
-        (u)=> emit(RegisterSuccess())
+        (e)=> emit(RegisterErrorState(e)),
+        (userModel)=> emit(RegisterSuccessState(userModel))
     );
   }
-
 }

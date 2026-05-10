@@ -1,22 +1,23 @@
-class UserModel{
+class UserModel {
   String? id;
   String? name;
-  String? phone;
   String? email;
+  String? phone;
 
-  UserModel({this.id, this.name, this.phone, this.email});
+  UserModel({this.id, this.name, this.email, this.phone});
 
-  UserModel.fromJson(Map<String, dynamic> json){
+  UserModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     name = json['name'];
-    phone = json['phone'];
     email = json['email'];
+    phone = json['phone'];
   }
 
   Map<String, dynamic> toJson(){
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
-    data['phone'] = phone;
-    data['email'] = email;
-    return data;
+    return {
+      'name': name,
+      'email': email,
+      'phone': phone
+    };
   }
 }

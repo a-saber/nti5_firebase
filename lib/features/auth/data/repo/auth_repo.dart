@@ -1,102 +1,59 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nti5_firebase/features/auth/data/models/user_model.dart';
 
-class AuthRepo{
-  Future<Either<String, Unit>> register({
-    required String emailAddress,
+class AuthRepo {
+  Future<Either<String, UserModel>> register({
+    required String email,
+    required String password,
     required String name,
     required String phone,
-    required String password
 })async{
     try {
       final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailAddress,
+        email: email,
         password: password,
       );
-      await credential.user?.sendEmailVerification();
-
-      UserModel userModel = UserModel(
-        email: emailAddress,
-        name: name,
-        phone: phone,
-        id: credential.user?.uid
-      );
-
-      await FirebaseFirestore.instance.collection('users')
-      .doc(userModel.id).set(userModel.toJson());
-      return right(unit);
-
-    } catch (e) {
-      print('Error Register: ${e.toString()}');
-      if(e is FirebaseAuthException){
+      var userModel = UserModel(id: credential.user?.uid, name: name, email: email, phone: phone);
+      return right(userModel);
+    } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         return left('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         return left('The account already exists for that email.');
       }
-      return left('${e.code} ${e.message}');
-    }
-      return left('error has happened');
+      return left('${e.code}, ${e.message}');
+    } catch (e) {
+      print(e);
+      return left('Something went wrong');
     }
   }
-  Future<Either<String, Unit>> login({
-    required String emailAddress,
-    required String password
+
+  Future<Either<String, UserModel>> login({
+    required String email,
+    required String password,
 })async{
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailAddress,
+        email: email,
         password: password,
       );
-      if(credential.user!.emailVerified){
-        return right(unit);
+      var userModel = UserModel(id: credential.user?.uid, email: email);
+
+      // TODO: Email verification
+      // credential.user?.emailVerified;
+      // credential.user?.sendEmailVerification();
+      return right(userModel);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        return left('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        return left('Wrong password provided for that user.');
       }
-      else {
-        return left('Please verify your email first');
-      }
-
-
-
+      return left('${e.code}, ${e.message}');
     } catch (e) {
-      if(e is FirebaseAuthException){
-        if (e.code == 'user-not-found') {
-          return left('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          return left('Wrong password provided for that user.');
-        }
-        return left('${e.code} ${e.message}');
-    }
-      print(e.toString());
-      return left('error has happened');
-    }
-  }
-  Future<Either<String, UserModel>> getUserData()async{
-    try {
-        if(FirebaseAuth.instance.currentUser != null) {
-          var response = await FirebaseFirestore.instance.collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid).get();
-          var user = UserModel.fromJson(response.data()!)
-            ..id = FirebaseAuth.instance.currentUser!.uid;
-
-          return right(user);
-        }
-        else{
-          return left('User is Signed out');
-        }
-
-    } catch (e) {
-      if(e is FirebaseAuthException){
-        if (e.code == 'user-not-found') {
-          return left('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          return left('Wrong password provided for that user.');
-        }
-        return left('${e.code} ${e.message}');
-    }
-      print(e.toString());
-      return left('error has happened');
+      print(e);
+      return left('Something went wrong');
     }
   }
 }

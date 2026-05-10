@@ -23,10 +23,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -60,10 +57,20 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCksez3HWt3EWDmrDLEOnv4-T7es_SbNwE',
-    appId: '1:608325273900:android:1c3c6beea3d3e052c10489',
-    messagingSenderId: '608325273900',
-    projectId: 'nti6-a65a3',
-    storageBucket: 'nti6-a65a3.firebasestorage.app',
+    apiKey: 'AIzaSyBZkr3KzvOuJ56-p29BhhEmd2ZpPSrUp_A',
+    appId: '1:621935208264:android:cdd18ea49869157445757d',
+    messagingSenderId: '621935208264',
+    projectId: 'nti6-2b1fc',
+    storageBucket: 'nti6-2b1fc.firebasestorage.app',
   );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyB3Iq2KkqShlrMdVIZT-74C4WYEkTM-hM8',
+    appId: '1:621935208264:ios:ce58166dacc526af45757d',
+    messagingSenderId: '621935208264',
+    projectId: 'nti6-2b1fc',
+    storageBucket: 'nti6-2b1fc.firebasestorage.app',
+    iosBundleId: 'com.example.nti5Firebase',
+  );
+
 }

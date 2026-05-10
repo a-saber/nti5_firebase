@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nti5_firebase/features/auth/cubit/register/register_cubit.dart';
 import 'package:nti5_firebase/features/auth/cubit/register/register_state.dart';
-import 'package:nti5_firebase/features/auth/data/repo/auth_repo.dart';
-import 'package:nti5_firebase/features/auth/views/login_view.dart';
+import 'package:nti5_firebase/features/home/views/home_view.dart';
 
 class RegisterView extends StatelessWidget {
   const RegisterView({super.key});
@@ -12,52 +11,75 @@ class RegisterView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context)=> RegisterCubit(AuthRepo()),
+      create: (context)=> RegisterCubit(),
       child: Scaffold(
         appBar: AppBar(
           title: Text('Register'),
         ),
         body: BlocConsumer<RegisterCubit, RegisterState>(
-          listener: (context, state){
-            if( state is RegisterSuccess){
-              Fluttertoast.showToast(
-                  msg: "Registered Successfully\nplease verify your email",
-                  toastLength: Toast.LENGTH_LONG,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.green,
-                  textColor: Colors.white,
-                  fontSize: 16.0
-              );
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginView()));
-
-            }
-            else if(state is RegisterError){
-              Fluttertoast.showToast(
-                msg: state.error,
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.CENTER,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0
-              );
-            }
-          },
-          builder: (context, state){
-            var cubit = RegisterCubit.get(context);
-            return Form(
-              key: cubit.formKey,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(20),
+            listener: (context, state) {
+              if(state is RegisterSuccessState){
+                Fluttertoast.showToast(
+                    msg: "Registered Successfully",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
+                    fontSize: 16.0
+                );
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeView(
+                  userModel: state.userModel,
+                )));
+              }
+              else if(state is RegisterErrorState){
+                Fluttertoast.showToast(
+                    msg: state.error,
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    fontSize: 16.0
+                );
+              }
+            },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(20),
+              child: Form(
+                key: RegisterCubit.get(context).formKey,
                 child: Column(
-                  children:
-                  [
+                  children: [
                     TextFormField(
-                      controller: cubit.name,
                       decoration: InputDecoration(
-                        labelText: 'name',
+                        hintText: 'Email',
                       ),
+                      controller: RegisterCubit.get(context).email,
+                      validator: (value){
+                        if(value == null || value.isEmpty){
+                          return 'Email is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20,),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        hintText: 'Password',
+                      ),
+                      controller: RegisterCubit.get(context).password,
+                      validator: (value){
+                        if(value == null || value.isEmpty){
+                          return 'Password is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20,),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        hintText: 'Name',
+                      ),
+                      controller: RegisterCubit.get(context).name,
                       validator: (value){
                         if(value == null || value.isEmpty){
                           return 'Name is required';
@@ -66,76 +88,30 @@ class RegisterView extends StatelessWidget {
                       },
                     ),
                     SizedBox(height: 20,),
-                     TextFormField(
-                      controller: cubit.phone,
+                    TextFormField(
                       decoration: InputDecoration(
-                        labelText: 'phone',
+                        hintText: 'Phone',
                       ),
+                      controller: RegisterCubit.get(context).phone,
                       validator: (value){
                         if(value == null || value.isEmpty){
-                          return 'phone is required';
+                          return 'Phone is required';
                         }
                         return null;
                       },
                     ),
                     SizedBox(height: 20,),
-                     TextFormField(
-                      controller: cubit.email,
-                      decoration: InputDecoration(
-                        labelText: 'email',
-                      ),
-                      validator: (value){
-                        if(value == null || value.isEmpty){
-                          return 'email is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20,),
-                     TextFormField(
-                      controller: cubit.password,
-                      decoration: InputDecoration(
-                        labelText: 'password',
-                      ),
-                      validator: (value){
-                        if(value == null || value.isEmpty){
-                          return 'password is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20,),
-                     TextFormField(
-                      controller: cubit.confirmPassword,
-                      decoration: InputDecoration(
-                        labelText: 'confirm Password',
-                      ),
-                      validator: (value){
-                        if(value == null || value.isEmpty){
-                          return 'confirm Password is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 40,),
-                    
-                    if(state is RegisterLoading)
-                      CircularProgressIndicator()
-                    else 
-                      ElevatedButton(
-                          onPressed: cubit.register,
-                          child: Text('Register')
-                      )
+                    state is RegisterLoadingState?
+                    Center(child: CircularProgressIndicator()):
+                    ElevatedButton(onPressed: RegisterCubit.get(context).onRegisterPressed, child: Text('Register')),
 
                   ],
-
                 ),
-              )
+              ),
             );
-          },
+          }
         ),
       ),
-
     );
   }
 }

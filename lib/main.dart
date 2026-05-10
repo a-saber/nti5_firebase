@@ -2,9 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:nti5_firebase/features/auth/views/login_view.dart';
-import 'package:nti5_firebase/features/home/views/home_view.dart';
 
-import 'features/auth/views/register_view.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser?.emailVerified == true)?
-      HomeView():
-      LoginView(),
+      home: LoginView(),
     );
   }
 }

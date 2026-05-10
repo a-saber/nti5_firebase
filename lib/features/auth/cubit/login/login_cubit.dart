@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nti5_firebase/features/auth/data/repo/auth_repo.dart';
-
 import 'login_state.dart';
 
-class LoginCubit extends Cubit<LoginState>{
-  LoginCubit(this.repo) : super(LoginInitial());
+class LoginCubit extends Cubit<LoginState> {
+  LoginCubit() : super(LoginInitialState());
+
   static LoginCubit get(context) => BlocProvider.of(context);
-  final AuthRepo repo;
 
   var email = TextEditingController();
   var password = TextEditingController();
+
   var formKey = GlobalKey<FormState>();
 
+  AuthRepo repo = AuthRepo();
 
-  void login() async{
-    if(formKey.currentState?.validate() == false) return;
+  void onLoginPressed() async {
+    if (formKey.currentState?.validate() == false) return;
 
-
-    emit(LoginLoading());
+    emit(LoginLoadingState());
     var result = await repo.login(
-      emailAddress: email.text,
-      password: password.text
+        email: email.text,
+        password: password.text,
     );
+
     result.fold(
-        (error)=> emit(LoginError(error)),
-        (u)=> emit(LoginSuccess())
+        (e)=> emit(LoginErrorState(e)),
+        (userModel)=> emit(LoginSuccessState(userModel))
     );
   }
-
 }

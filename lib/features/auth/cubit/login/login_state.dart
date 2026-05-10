@@ -1,13 +1,17 @@
 import 'package:nti5_firebase/features/auth/data/models/user_model.dart';
 
-abstract class LoginState{}
+abstract class LoginState {}
 
-class LoginInitial extends LoginState{}
+class LoginInitialState extends LoginState {}
 
-class LoginLoading extends LoginState{}
+class LoginLoadingState extends LoginState {}
 
-class LoginSuccess extends LoginState{}
-class LoginError extends LoginState{
-  String error;
-  LoginError(this.error);
+class LoginSuccessState extends LoginState {
+  final UserModel userModel;
+  LoginSuccessState(this.userModel);
+}
+
+class LoginErrorState extends LoginState {
+  final String error;
+  LoginErrorState(this.error);
 }
